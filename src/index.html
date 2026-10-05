@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>DoseNote</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="renderer.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">✓</span><div><strong>DoseNote</strong><span>A little peace of mind.</span></div></div>
+      <span class="private-badge"><span aria-hidden="true">●</span> Private &amp; offline</span>
+    </header>
+    <nav class="tabs" aria-label="Main navigation">
+      <button id="today-tab" aria-current="page"><span aria-hidden="true">☀</span> Today</button>
+      <button id="settings-tab"><span aria-hidden="true">⚙</span> Settings</button>
+    </nav>
+    <main>
+      <section id="today-panel" aria-labelledby="today-title">
+        <div class="page-heading"><div><p class="eyebrow" id="today-date"></p><h1 id="today-title">Your daily check-in</h1><p class="subtitle">One dose at a time. Check it off after you take it.</p></div><button class="text-button" id="manage-button">Manage medications <span aria-hidden="true">↗</span></button></div>
+        <div id="progress" class="progress-card"><div><p class="eyebrow">TODAY’S PROGRESS</p><h2 id="progress-text"></h2><p id="progress-caption"></p></div><div class="progress-visual"><span id="progress-number"></span><progress id="progress-bar" max="100" value="0" aria-label="Scheduled doses taken today"></progress></div></div>
+        <div id="daily-list"></div>
+        <div id="as-needed-list"></div>
+        <div id="empty-state" class="empty-state" hidden><span class="empty-icon" aria-hidden="true">＋</span><h2>Let’s set up your routine</h2><p>Add your medications and their prescribed schedule.<br>Your daily checklist will appear here.</p><button class="primary" id="first-medication">Add your first medication</button></div>
+        <details id="history" class="history"><summary>Recent checkoffs <span>Last 7 days</span></summary><div id="history-list"></div></details>
+      </section>
+      <section id="settings-panel" aria-labelledby="settings-title" hidden>
+        <div class="page-heading"><div><p class="eyebrow">YOUR ROUTINE</p><h1 id="settings-title">Medication settings</h1><p class="subtitle">Add the name, amount, and schedule from your prescription.</p></div></div>
+        <div class="settings-grid">
+          <section class="form-card" aria-labelledby="form-title"><h2 id="form-title">Add a medication</h2><p class="muted">Keep the details easy to recognize.</p>
+            <form id="medication-form">
+              <label for="name">Medication name</label><input id="name" name="name" maxlength="100" required placeholder="e.g. Vitamin D" autocomplete="off">
+              <label for="amount">Amount per dose</label><input id="amount" name="amount" maxlength="100" required placeholder="e.g. 1 tablet · 1,000 IU" autocomplete="off"><p class="field-hint">Include the strength and quantity you take.</p>
+              <label for="frequency">Frequency</label><select id="frequency" name="frequency"><option value="daily">Every day</option><option value="weekly">Selected days of the week</option><option value="as-needed">As needed</option></select>
+              <div id="doses-field"><label for="doses">Doses per day</label><select id="doses" name="doses"><option value="1">Once a day</option><option value="2">Twice a day</option><option value="3">3 times a day</option><option value="4">4 times a day</option><option value="5">5 times a day</option><option value="6">6 times a day</option></select></div>
+              <fieldset id="weekdays-field" hidden><legend>Which days?</legend><div class="weekdays">
+                <label><input type="checkbox" value="1"><span>Mon</span></label><label><input type="checkbox" value="2"><span>Tue</span></label><label><input type="checkbox" value="3"><span>Wed</span></label><label><input type="checkbox" value="4"><span>Thu</span></label><label><input type="checkbox" value="5"><span>Fri</span></label><label><input type="checkbox" value="6"><span>Sat</span></label><label><input type="checkbox" value="0"><span>Sun</span></label>
+              </div></fieldset>
+              <p id="as-needed-hint" class="field-hint" hidden>One checkoff per day. This does not track repeat as-needed doses.</p>
+              <p id="form-error" class="error" role="alert" hidden></p>
+              <div class="form-actions"><button class="primary" type="submit" id="save-medication">Add medication</button><button type="button" class="secondary" id="cancel-edit" hidden>Cancel</button></div>
+            </form>
+          </section>
+          <section class="saved-card" aria-labelledby="saved-title"><div class="section-heading"><h2 id="saved-title">Your medications</h2><span id="medication-count" class="count-badge">0</span></div><div id="saved-list"></div></section>
+        </div>
+        <section class="backup-card"><div><h2>Your data, on your computer</h2><p>Save a backup before switching computers or restoring older data.<br>Backups contain your medication details; keep them somewhere private.</p></div><div class="backup-actions"><button id="export-backup" class="secondary">Save backup</button><button id="import-backup" class="text-button">Restore backup</button></div></section>
+      </section>
+      <div id="fatal-error" class="fatal-error" role="alert" hidden><h2>Your data needs attention</h2><p id="fatal-message"></p><p>Close the app and keep a copy of medications.json in the app’s data folder before attempting recovery. See the README for its location.</p></div>
+    </main>
+    <footer><span aria-hidden="true">♡</span> A checklist for your routine. Follow your prescribed schedule.<span>No reminders or medical advice.</span></footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <dialog id="confirm-dialog"><h2>Remove medication?</h2><p id="confirm-message"></p><p class="muted">Past checkoffs will stay in your history.</p><div class="dialog-actions"><button id="confirm-cancel" class="secondary">Keep medication</button><button id="confirm-remove" class="danger">Remove medication</button></div></dialog>
+</body>
+</html>

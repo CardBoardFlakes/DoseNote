@@ -1,0 +1,61 @@
+{
+  "name": "dosenote",
+  "version": "1.0.0",
+  "description": "A calm, private desktop medication checklist.",
+  "main": "src/main.cjs",
+  "author": "DoseNote contributors",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.cjs",
+    "test:ui": "node test/ui.cjs",
+    "dist": "electron-builder --publish never",
+    "dist:mac": "electron-builder --mac --publish never",
+    "dist:win": "electron-builder --win --publish never",
+    "dist:linux": "electron-builder --linux --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "playwright": "1.58.2"
+  },
+  "build": {
+    "appId": "org.dosenote.desktop",
+    "productName": "DoseNote",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "artifactName": "DoseNote-${version}-${os}-${arch}.${ext}",
+    "mac": {
+      "category": "public.app-category.healthcare-fitness",
+      "icon": "build/icon.png",
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "hardenedRuntime": true
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    },
+    "linux": {
+      "icon": "build/icon.png",
+      "category": "Utility",
+      "target": [
+        "AppImage"
+      ]
+    }
+  }
+}
