@@ -1,0 +1,69 @@
+name: Build desktop downloads
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+            arch: arm64
+          - os: macos-latest
+            platform: mac
+            arch: x64
+          - os: windows-latest
+            platform: win
+            arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - name: Test desktop interface
+        if: matrix.platform == 'linux'
+        run: xvfb-run -a npm run test:ui
+      - name: Build installers
+        run: npx electron-builder --${{ matrix.platform }} --${{ matrix.arch }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DoseNote-${{ matrix.platform }}-${{ matrix.arch }}
+          if-no-files-found: error
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.AppImage
+  draft-release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: downloads
+          merge-multiple: true
+      - name: Add checksums
+        working-directory: downloads
+        run: sha256sum * > SHA256SUMS.txt
+      - name: Create draft release
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          TAG="v$VERSION"
+          gh release create "$TAG" downloads/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --title "DoseNote $VERSION" --notes "Desktop medication checklist for macOS, Windows, and Linux. Downloads are unsigned: macOS may require approval in Privacy & Security, and Windows may show an unknown-publisher warning. See the README for installation and usage."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
